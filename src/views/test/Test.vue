@@ -1,7 +1,13 @@
 <template>
+  <div class="button-list">
+    <label v-for="(sensor, index) in sensors" :key="index">
+      <input type="checkbox" v-model="selectedButtons" :value="sensor.label">
+      {{ sensor.label }}
+    </label>
+  </div>
   <div class="layout df">
     <div class="navs fn df fdc">
-      <div v-for="(sensor, index) in sensors" :key="index" class="list-item"
+      <div v-for="(sensor, index) in sensors" :key="index" v-show="isSelected(sensor.label)" class="list-item"
            :class="{ active: sensor.active, alternate: sensor.alternate,status:sensor.status }">
         <div class="sensor-label">{{ sensor.label }}</div>
         <div class="sensor-value">{{ sensor.value }}</div>
@@ -22,8 +28,6 @@ export default {
         { label: "（霍尔传感器2）到位状态", value: "-1", active: false, alternate: false, status: false },
         { label: "大量程称重传感器读数：单位g", value: "-1", active: false, alternate: false, status: false },
         { label: "小量程称重传感器读数：单位g", value: "-1", active: false, alternate: false, status: false },
-        { label: "小量程称重传感器读数：单位g", value: "-1", active: false, alternate: false, status: false },
-
         { label: "RFID_INFO", value: "-1", active: false, alternate: false, status: false },
         { label: "RFID_MsgHead", value: "-1", active: false, alternate: false, status: false },
         { label: "Encoder01", value: "-1", active: false, alternate: false, status: false },
@@ -33,11 +37,15 @@ export default {
         { label: "Encoder05", value: "-1", active: false, alternate: false, status: false },
         { label: "Encoder06", value: "-1", active: false, alternate: false, status: false },
         { label: "Encoder07", value: "-1", active: false, alternate: false, status: false }
-      ]
+      ],
+      selectedButtons: []
+
     };
   },
 
   mounted() {
+    this.selectedButtons = this.sensors.map(sensor => sensor.label);
+
     try {
       const socket = new WebSocket("ws://127.0.0.1:8088/websocket");
 
@@ -95,6 +103,9 @@ export default {
           console.error('Failed to parse message:', error);
         }
       }
+    },
+    isSelected(label) {
+      return this.selectedButtons.includes(label);
     }
   },
 };
@@ -102,8 +113,8 @@ export default {
 
 <style lang="scss" scoped>
 .list-item {
-  width: 500px;
-  height: 50px;
+  width: 150px;
+  height: 100px;
   margin-left: 30px;
   margin-bottom: 30px;
   border: 1px solid #333;
@@ -136,7 +147,6 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   flex-direction: row;
-  //background: sandybrown;
   margin: 10px;
 
   button {
